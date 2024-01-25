@@ -27,11 +27,10 @@ from torch.nn.modules.loss import CrossEntropyLoss
 from torchvision import transforms
 from tqdm import tqdm
 from skimage.measure import label
-from networks.vision_transformer import SwinUnet as ViT_seg
 
 from val import test_myHiFormer_single_volume, test_single_volume
 from dataloaders.dataset import (BaseDataSets_FLARE22, RandomGenerator_slice, TwoStreamBatchSampler, BaseDataSets)
-from networks.net_factory import net_factory,BCP_net
+from networks.net_factory import BCP_net
 import losses, ramps
 from config import get_config
 parser = argparse.ArgumentParser()
@@ -298,15 +297,6 @@ def pre_train(args, snapshot_path):
     pre_trained_model = os.path.join(pre_snapshot_path,'{}_best_model.pth'.format(args.model))
     labeled_sub_bs, unlabeled_sub_bs = int(args.labeled_bs/2), int((args.batch_size-args.labeled_bs) / 2)
 
-    def create_model(ema=False, net_type=args.model):
-        # Network definition
-        model = net_factory(net_type=net_type, in_chns=1,
-                            class_num=num_classes)
-        if ema:
-            for param in model.parameters():
-                param.detach_()
-        return model
-
     model1 = BCP_net(in_chns=1, class_num=num_classes)
     model2 = BCP_net(in_chns=1, class_num=num_classes)
     # model1 = create_model(net_type=args.model1)
@@ -545,15 +535,6 @@ def self_train(args ,pre_snapshot_path, snapshot_path):
     # pre_trained2 = os.path.join(pre_snapshot_path,
     #                                     '{}_best_model2.pth'.format(args.model2))
     labeled_sub_bs, unlabeled_sub_bs = int(args.labeled_bs/2), int((args.batch_size-args.labeled_bs) / 2)
-
-    def create_model(ema=False, net_type=args.model):
-        # Network definition
-        model = net_factory(net_type=net_type, in_chns=1,
-                            class_num=num_classes)
-        if ema:
-            for param in model.parameters():
-                param.detach_()
-        return model
 
     model1 = BCP_net(in_chns=1, class_num=num_classes)
     model2 = BCP_net(in_chns=1, class_num=num_classes)
@@ -844,7 +825,3 @@ if __name__ == "__main__":
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logging.info(str(args))
     self_train(args, pre_snapshot_path, self_snapshot_path)
-
-    
-
-

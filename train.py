@@ -530,10 +530,10 @@ def self_train(args ,pre_snapshot_path, snapshot_path):
     num_classes = args.num_classes
     max_iterations = args.max_iterations
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-    # pre_trained1 = os.path.join(pre_snapshot_path,
-    #                                   '{}_best_model1.pth'.format(args.model1))
-    # pre_trained2 = os.path.join(pre_snapshot_path,
-    #                                     '{}_best_model2.pth'.format(args.model2))
+    pre_trained1 = os.path.join(pre_snapshot_path,
+                                      '{}_best_model1.pth'.format(args.model1))
+    pre_trained2 = os.path.join(pre_snapshot_path,
+                                        '{}_best_model2.pth'.format(args.model2))
     labeled_sub_bs, unlabeled_sub_bs = int(args.labeled_bs/2), int((args.batch_size-args.labeled_bs) / 2)
 
     model1 = BCP_net(in_chns=1, class_num=num_classes)
@@ -565,10 +565,10 @@ def self_train(args ,pre_snapshot_path, snapshot_path):
                                   momentum=0.9, weight_decay=0.0001)
     optimizer2 = optim.SGD(model2.parameters(), lr=base_lr,
                                    momentum=0.9, weight_decay=0.0001)
-    # load_net(model1, pre_trained1)
-    # load_net(model2, pre_trained2)
-    # logging.info("Loaded from {}".format(pre_trained1))
-    # logging.info("Loaded from {}".format(pre_trained2))
+    load_net(model1, pre_trained1)
+    load_net(model2, pre_trained2)
+    logging.info("Loaded from {}".format(pre_trained1))
+    logging.info("Loaded from {}".format(pre_trained2))
 
     writer = SummaryWriter(snapshot_path + '/log')
     logging.info("Start self_training")
@@ -814,11 +814,11 @@ if __name__ == "__main__":
         if not os.path.exists(snapshot_path):
             os.makedirs(snapshot_path)
 
-    # #Pre_train
-    # logging.basicConfig(filename=pre_snapshot_path+"/log.txt", level=logging.INFO, format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S')
-    # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    # logging.info(str(args))
-    # pre_train(args, pre_snapshot_path)
+    #Pre_train
+    logging.basicConfig(filename=pre_snapshot_path+"/log.txt", level=logging.INFO, format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S')
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    logging.info(str(args))
+    pre_train(args, pre_snapshot_path)
 
     #Self_train
     logging.basicConfig(filename=self_snapshot_path+"/log.txt", level=logging.INFO, format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S')

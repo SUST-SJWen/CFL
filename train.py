@@ -631,14 +631,14 @@ def self_train(args ,pre_snapshot_path, snapshot_path):
 
                 outputs1 = model1(uimg)
                 outputs2 = model2(uimg)
-                # outputs_soft1 = torch.softmax(outputs1, dim=1)
-                # outputs_soft2 = torch.softmax(outputs2, dim=1)
-                # uncertainty_map1 = -1.0 * torch.sum(outputs_soft1 * torch.log(outputs_soft1 + 1e-6), dim=1,
-                #                                     keepdim=True)
-                # uncertainty_map2 = -1.0 * torch.sum(outputs_soft2 * torch.log(outputs_soft2 + 1e-6), dim=1,
-                #                                     keepdim=True)
-                # pre=torch.where(uncertainty_map1 < uncertainty_map2, outputs1, outputs2)
-                pre=(outputs1 + outputs2)/2
+                outputs_soft1 = torch.softmax(outputs1, dim=1)
+                outputs_soft2 = torch.softmax(outputs2, dim=1)
+                uncertainty_map1 = -1.0 * torch.sum(outputs_soft1 * torch.log(outputs_soft1 + 1e-6), dim=1,
+                                                    keepdim=True)
+                uncertainty_map2 = -1.0 * torch.sum(outputs_soft2 * torch.log(outputs_soft2 + 1e-6), dim=1,
+                                                    keepdim=True)
+                pre=torch.where(uncertainty_map1 < uncertainty_map2, outputs1, outputs2)
+                # pre=(outputs1 + outputs2)/2
                 plab = get_ACDC_masks(pre, nms=1)
                 img_mask, loss_mask = generate_mask_part(img)
                 uimg_mask, uloss_mask = generate_mask_part(uimg)
